@@ -1,17 +1,8 @@
 Documentation ML Ready Sys.md
 clean dataset/Cleaned_Students_Performance.csv
-messy datatset/amazon_laptop_1.csv
-messy datatset/amazon_laptop_2.csv
-messy datatset/amazon_laptop_3.csv
-messy datatset/amazon_laptop_4.csv
-messy datatset/amazon_laptop_5.csv
-messy datatset/amazon_laptop_6.csv
-messy datatset/amazon_laptop_7.csv
-messy datatset/amazon_laptop_8.csv
-messy datatset/amazon_laptop_9.csv
-messy datatset/amazon_laptop_10.csv
 biased dataset/bank-additional.csv
 biased dataset/bank-full.csv
 biased dataset/bank.csv
 Templates.ipynb
 bank-full.csv
+messy dataset.csv
