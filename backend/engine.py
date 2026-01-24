@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 
-df = pd.read_csv('Clean.csv')
-
 def extract_metrics(df, target_column=None):
     df = df.copy()
     
