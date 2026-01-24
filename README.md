@@ -1,4 +1,4 @@
-# Automated Dataset Analysis Engine
+# Dataset Health Checker
 
 This project is a small system that performs automated analysis of tabular datasets.
 
