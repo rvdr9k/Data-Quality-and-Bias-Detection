@@ -18,7 +18,7 @@ uploaded_file = st.sidebar.file_uploader(
 )
 
 target_column = st.sidebar.text_input(
-    "Target column (optional)",
+    "Target Column",
     help="Leave empty if no target column is available"
 )
 
@@ -32,7 +32,7 @@ st.sidebar.write("- Key data issues")
 
 # ---------- Main Title ----------
 
-st.title("Automated Dataset Analysis")
+st.title("Dataset Health Checker")
 
 st.write(
     "Upload a dataset and run automated analysis to assess data quality, "
