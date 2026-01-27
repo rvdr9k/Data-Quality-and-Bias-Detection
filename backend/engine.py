@@ -421,9 +421,59 @@ def bias_interpreter(metrics):
     
     return findings
 
-def run_analysis_pipeline(df, target_column, dataset_type):
+def infer_dataset_type(metrics):
+    scores = {
+        "clean": 0.0,
+        "messy": 0.0,
+        "biased": 0.0
+    }
+
+    # ---- Messy signals ----
+    missing_pct = metrics["missingness"]["any_missing"]
+    high_missing = len(metrics["missingness"]["per_column_missing_pct"])
+    mixed_cols = len(metrics["formatting"]["mixed_type_columns"])
+    formatting_issues = (
+        len(metrics["formatting"]["currency_like_columns"]) +
+        len(metrics["formatting"]["comma_separated_numeric_columns"])
+    )
+
+    if metrics["missingness"]["any_missing"]:
+        scores["messy"] += 0.4
+    if mixed_cols > 0:
+        scores["messy"] += 0.3
+    if formatting_issues > 0:
+        scores["messy"] += 0.3
+
+    # ---- Bias signals ----
+    target_type = metrics.get("target", {}).get("type")
+    if target_type == "boolean":
+        scores["biased"] += 0.4
+
+    sensitive_cols = len(
+        metrics.get("schema", {})
+        .get("column_roles", {})
+        .get("categorical", [])
+    )
+
+    if sensitive_cols > 0:
+        scores["biased"] += 0.2
+
+    # ---- Clean signals ----
+    if scores["messy"] < 0.2 and scores["biased"] < 0.2:
+        scores["clean"] += 0.6
+    if not metrics["missingness"]["any_missing"]:
+        scores["clean"] += 0.2
+
+    dataset_type = max(scores, key=scores.get)
+
+    return dataset_type, scores
+
+
+def run_analysis_pipeline(df, target_column):
     # Step 1: Extract metrics
     metrics = extract_metrics(df, target_column=target_column)
+
+    dataset_type, dataset_scores = infer_dataset_type(metrics)
     
     # Step 2: Route checks
     router_config = route_checks(metrics, dataset_type=dataset_type)
@@ -462,6 +512,7 @@ def run_analysis_pipeline(df, target_column, dataset_type):
     result = {
         "status": "ok",
         "dataset_type": dataset_type,
+        "dataset_scores": dataset_scores,
         "task_type": router_config["task_type"],
         "router": router_config,
         "metrics": metrics,
