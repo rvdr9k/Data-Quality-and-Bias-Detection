@@ -3,7 +3,7 @@ import requests
 
 API_URL = "http://127.0.0.1:8000/analyze"
 
-st.set_page_config(page_title="Automated Dataset Analysis", layout="centered")
+st.set_page_config(page_title="Dataset Health Checker", layout="centered")
 
 st.title("Automated Dataset Analysis Tool")
 
@@ -13,7 +13,7 @@ st.write("Upload a dataset and optionally provide a target column. The system wi
 uploaded_file = st.file_uploader("Upload CSV or Excel file", type=["csv", "xlsx"])
 
 # Target column input
-target_column = st.text_input("Target column (optional)")
+target_column = st.text_input("Target Column")
 
 
 if st.button("Analyze"):
@@ -59,7 +59,7 @@ if st.button("Analyze"):
                         st.text(report)
                         
                         
-                        with st.expander("Show full raw verdict (JSON)"):
+                        with st.expander("Full JSON Output"):
                             st.json(verdict)
             
             except Exception as e:
