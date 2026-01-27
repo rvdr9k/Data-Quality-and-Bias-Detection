@@ -3,20 +3,47 @@ import requests
 
 API_URL = "http://127.0.0.1:8000/analyze"
 
-st.set_page_config(page_title="Dataset Health Checker", layout="centered")
+st.set_page_config(
+    page_title="Dataset Health Checker",
+    layout="wide"
+)
 
-st.title("Automated Dataset Analysis Tool")
+# ---------- Sidebar (Inputs) ----------
 
-st.write("Upload a dataset and optionally provide a target column. The system will analyze the dataset and infer its quality automatically.")
+st.sidebar.title("Dataset Input")
 
-# File upload
-uploaded_file = st.file_uploader("Upload CSV or Excel file", type=["csv", "xlsx"])
+uploaded_file = st.sidebar.file_uploader(
+    "Upload CSV or Excel",
+    type=["csv", "xlsx"]
+)
 
-# Target column input
-target_column = st.text_input("Target Column")
+target_column = st.sidebar.text_input(
+    "Target column (optional)",
+    help="Leave empty if no target column is available"
+)
 
+run_button = st.sidebar.button("Run Analysis")
 
-if st.button("Analyze"):
+st.sidebar.markdown("---")
+st.sidebar.write("The system will automatically infer:")
+st.sidebar.write("- Dataset quality (clean / messy / biased)")
+st.sidebar.write("- Task type (regression / classification)")
+st.sidebar.write("- Key data issues")
+
+# ---------- Main Title ----------
+
+st.title("Automated Dataset Analysis")
+
+st.write(
+    "Upload a dataset and run automated analysis to assess data quality, "
+    "target health, and modeling readiness."
+)
+
+st.markdown("---")
+
+# ---------- Run Analysis ----------
+
+if run_button:
     if uploaded_file is None:
         st.error("Please upload a dataset first.")
     else:
@@ -43,24 +70,73 @@ if st.button("Analyze"):
                         verdict = result.get("verdict", {})
                         report = result.get("report", "")
                         
+                        # ---------- Verdict Section ----------
+                        
                         st.success("Analysis completed successfully.")
                         
+                        col1, col2 = st.columns([1, 2])
                         
-                        st.subheader("Dataset Verdict")
-                        st.write(f"**Inferred dataset type:** {verdict.get('dataset_type')}")
+                        with col1:
+                            st.subheader("Dataset Verdict")
+                            
+                            dataset_type = verdict.get("dataset_type", "unknown")
+                            st.metric(
+                                label="Inferred Dataset Type",
+                                value=dataset_type.capitalize()
+                            )
+                            
+                            task_type = verdict.get("task_type", "unknown")
+                            st.metric(
+                                label="Task Type",
+                                value=task_type.replace("_", " ").capitalize()
+                            )
                         
-                        scores = verdict.get("dataset_scores", {})
-                        if scores:
-                            st.write("**Dataset type scores:**")
-                            st.json(scores)
+                        with col2:
+                            st.subheader("Dataset Type Scores")
+                            
+                            scores = verdict.get("dataset_scores", {})
+                            
+                            if scores:
+                                st.write("Relative confidence for each class:")
+                                
+                                st.progress(min(1.0, scores.get("clean", 0.0)))
+                                st.caption(f"Clean score: {round(scores.get('clean', 0.0), 3)}")
+                                
+                                st.progress(min(1.0, scores.get("messy", 0.0)))
+                                st.caption(f"Messy score: {round(scores.get('messy', 0.0), 3)}")
+                                
+                                st.progress(min(1.0, scores.get("biased", 0.0)))
+                                st.caption(f"Biased score: {round(scores.get('biased', 0.0), 3)}")
+                        
+                        st.markdown("---")
+                        
                         
                         
                         st.subheader("Analysis Report")
-                        st.text(report)
                         
+                        st.text_area(
+                            label="",
+                            value=report,
+                            height=250
+                        )
                         
-                        with st.expander("Full JSON Output"):
+                        # Download button
+                        st.download_button(
+                            label="Download Report",
+                            data=report,
+                            file_name="analysis_report.txt",
+                            mime="text/plain"
+                        )
+                        
+                        st.markdown("---")
+                        
+                       
+                        
+                        with st.expander("Show JSON output"):
                             st.json(verdict)
             
             except Exception as e:
                 st.error(f"Failed to connect to backend: {str(e)}")
+
+else:
+    st.info("Upload a dataset from the sidebar and click 'Run Analysis' to begin.")
