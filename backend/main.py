@@ -16,7 +16,7 @@ def health_check():
 async def analyze_dataset(
     file: UploadFile = File(...),
     target_column: str = Form(None),
-    dataset_type: str = Form("clean")
+    
 ):
     # 1. Read uploaded file into DataFrame
     try:
@@ -34,7 +34,7 @@ async def analyze_dataset(
         result = run_analysis_pipeline(
             df,
             target_column=target_column,
-            dataset_type=dataset_type
+            
         )
         
         verdict = generate_verdict(result)

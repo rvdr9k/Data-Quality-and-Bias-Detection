@@ -527,7 +527,7 @@ def generate_verdict(result):
     verdict["status"] = result.get("status")
     verdict["dataset_type"] = result.get("dataset_type")
     verdict["task_type"] = result.get("task_type")
-    
+    verdict["dataset_scores"] = result.get("dataset_scores")
     findings = result.get("findings", {})
     
     summary = {}
